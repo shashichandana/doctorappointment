@@ -1,0 +1,171 @@
+import React, { useState, useContext, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import DoctorCard from '../components/DoctorCard';
+import { doctors, specialties } from '../utils/dummyData';
+import { AppContext } from '../context/AppContext';
+
+const Doctors = () => {
+  const [searchParams] = useSearchParams();
+  const { selectDoctor } = useContext(AppContext);
+  const [selectedSpecialty, setSelectedSpecialty] = useState(
+    searchParams.get('specialty') || 'All'
+  );
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('name');
+
+  // Filter and sort doctors
+  const filteredDoctors = useMemo(() => {
+    let result = doctors;
+
+    // Filter by specialty
+    if (selectedSpecialty !== 'All') {
+      result = result.filter((doc) => doc.specialty === selectedSpecialty);
+    }
+
+    // Filter by search term
+    if (searchTerm) {
+      result = result.filter(
+        (doc) =>
+          doc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          doc.specialty.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Sort
+    if (sortBy === 'name') {
+      result.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortBy === 'fee-low') {
+      result.sort((a, b) => a.fee - b.fee);
+    } else if (sortBy === 'fee-high') {
+      result.sort((a, b) => b.fee - a.fee);
+    } else if (sortBy === 'experience') {
+      result.sort((a, b) => b.experience - a.experience);
+    } else if (sortBy === 'rating') {
+      result.sort((a, b) => b.rating - a.rating);
+    }
+
+    return result;
+  }, [selectedSpecialty, searchTerm, sortBy]);
+
+  const handleDoctorBook = (doctor) => {
+    selectDoctor(doctor);
+  };
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900 mb-2">Find Your Doctor</h1>
+        <p className="text-gray-600">Browse and book appointments with qualified doctors</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        
+        {/* Left Sidebar: Filters */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl shadow-md p-6 sticky top-20">
+            
+            {/* Search */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Search Doctor
+              </label>
+              <input
+                type="text"
+                placeholder="Doctor name or specialty..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+              />
+            </div>
+
+            {/* Specialty Filter */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-800 mb=3">
+                Specialty
+              </label>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setSelectedSpecialty('All')}
+                  className={`w-full text-left px-4 py-2 rounded-lg transition ${
+                    selectedSpecialty === 'All'
+                      ? 'bg-blue-600 text-white font-semibold'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  All Specialties
+                </button>
+                {specialties.map((specialty) => (
+                  <button
+                    key={specialty.id}
+                    onClick={() => setSelectedSpecialty(specialty.name)}
+                    className={`w-full text-left px-4 py-2 rounded-lg transition flex items-center space-x-2 ${
+                      selectedSpecialty === specialty.name
+                        ? 'bg-blue-600 text-white font-semibold'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <span>{specialty.icon}</span>
+                    <span>{specialty.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Sort */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-3">
+                Sort By
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition bg-white"
+              >
+                <option value="name">Name (A-Z)</option>
+                <option value="fee-low">Fee (Low to High)</option>
+                <option value="fee-high">Fee (High to Low)</option>
+                <option value="experience">Experience</option>
+                <option value="rating">Rating</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Content: Doctor Grid */}
+        <div className="lg:col-span-3">
+          {/* Results Summary */}
+          <div className="mb-6 flex justify-between items-center">
+            <p className="text-gray-600 font-medium">
+              Showing {filteredDoctors.length} doctor{filteredDoctors.length !== 1 ? 's' : ''}
+            </p>
+          </div>
+
+          {/* Doctor Grid */}
+          {filteredDoctors.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {filteredDoctors.map((doctor) => (
+                <DoctorCard
+                  key={doctor.id}
+                  doctor={doctor}
+                  onBookClick={handleDoctorBook}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl shadow-md p-12 text-center">
+              <div className="text-5xl mb-4">🔍</div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                No doctors found
+              </h3>
+              <p className="text-gray-600">
+                Try adjusting your search or filter criteria
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Doctors;
