@@ -49,7 +49,7 @@ export const doctors = [
     experience: 12,
     fee: 500,
     available: true,
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&h=400&fit=crop',
     degree: 'MBBS, MD',
     about:
       'Dr. Sarah has 12 years of experience in general medicine. She is known for her compassionate care and thorough diagnosis.',
@@ -63,7 +63,7 @@ export const doctors = [
     experience: 15,
     fee: 800,
     available: true,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=400&h=400&fit=crop',
     degree: 'MBBS, MD, DM',
     about:
       'Dr. Rajesh is a highly experienced cardiologist with expertise in preventive cardiology and interventional procedures.',
@@ -77,7 +77,7 @@ export const doctors = [
     experience: 10,
     fee: 600,
     available: false,
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=400&h=400&fit=crop',
     degree: 'MBBS, MS',
     about:
       'Dr. Emily specializes in obstetrics and gynecology with a focus on women\'s health and wellness.',
@@ -91,7 +91,7 @@ export const doctors = [
     experience: 8,
     fee: 550,
     available: true,
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?w=400&h=400&fit=crop',
     degree: 'MBBS, MD',
     about:
       'Dr. Michael is a skilled dermatologist specializing in acne treatment, laser therapy, and cosmetic dermatology.',
@@ -105,7 +105,7 @@ export const doctors = [
     experience: 9,
     fee: 450,
     available: true,
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=400&fit=crop',
     degree: 'MBBS, MD',
     about:
       'Dr. Priya has a warm approach to pediatric care, specializing in child immunization and developmental health.',
@@ -119,7 +119,7 @@ export const doctors = [
     experience: 14,
     fee: 700,
     available: true,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?w=400&h=400&fit=crop',
     degree: 'MBBS, MD, DM',
     about:
       'Dr. David is an experienced neurologist with expertise in migraine management and neurological disorders.',
@@ -133,7 +133,7 @@ export const doctors = [
     experience: 7,
     fee: 450,
     available: false,
-    image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop',
     degree: 'MBBS',
     about:
       'Dr. Jessica is a compassionate general physician dedicated to holistic patient care and preventive medicine.',
@@ -147,7 +147,7 @@ export const doctors = [
     experience: 11,
     fee: 500,
     available: true,
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=400&fit=crop',
     degree: 'MBBS, MD',
     about:
       'Dr. Arjun brings clinical expertise and empathy to his practice, focusing on patient education.',
@@ -161,7 +161,7 @@ export const doctors = [
     experience: 13,
     fee: 650,
     available: true,
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1594824804732-ca8db723f8fa?w=400&h=400&fit=crop',
     degree: 'MBBS, MS, Fellow',
     about:
       'Dr. Sophia is a renowned gynecologist with special interest in fertility and women\'s reproductive health.',
@@ -175,7 +175,7 @@ export const doctors = [
     experience: 16,
     fee: 850,
     available: true,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop',
+    image: 'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=400&h=400&fit=crop',
     degree: 'MBBS, MD, DM, Fellow',
     about:
       'Dr. Thomas is a senior cardiologist with expertise in complex cardiac cases and interventional cardiology.',
