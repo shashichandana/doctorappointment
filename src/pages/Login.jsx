@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Button from '../components/Button';
+import axios from 'axios';
+
 import { AppContext } from '../context/AppContext';
 
 const Login = () => {
@@ -62,18 +63,46 @@ const Login = () => {
     }
 
     setLoading(true);
+    setErrors({});
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const endpoint = isSignup
+        ? 'http://localhost:5001/api/auth/register'
+        : 'http://localhost:5001/api/auth/login';
+
+      const payload = isSignup
+        ? {
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+          }
+        : {
+            email: formData.email,
+            password: formData.password,
+          };
+
+      const response = await axios.post(endpoint, payload);
+
+      // Store JWT token in localStorage
+      if (response.data.token) {
+        localStorage.setItem('authToken', response.data.token);
+      }
+
+      // Call login from context
       const userData = {
-        name: formData.name || formData.email.split('@')[0],
-        email: formData.email,
+        name: response.data.user?.name || formData.name || formData.email.split('@')[0],
+        email: response.data.user?.email || formData.email,
       };
 
       login(userData);
       navigate('/');
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || 'An error occurred. Please try again.';
+      setErrors({ submit: errorMessage });
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
   };
 
   const toggleMode = () => {
@@ -223,23 +252,13 @@ const Login = () => {
             )}
 
             {/* Submit Button */}
-            <Button
-              type="submit"
-              size="lg"
-              disabled={loading}
-              className="w-full text-base mt-6"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center space-x-2">
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                  <span>Processing...</span>
-                </span>
-              ) : isSignup ? (
-                'Create Account'
-              ) : (
-                'Sign In'
-              )}
-            </Button>
+            <button
+  type="submit"
+  className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6"
+>
+  {loading ? "Processing..." : isSignup ? "Create Account" : "Sign In"}
+</button>
+              
           </form>
 
           {/* Divider */}
@@ -284,16 +303,6 @@ const Login = () => {
             <a href="#privacy" className="text-blue-600 hover:underline">
               Privacy Policy
             </a>
-          </p>
-        </div>
-
-        {/* Demo Hint */}
-        <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4 text-center">
-          <p className="text-sm text-gray-700 mb-2">
-            <span className="font-semibold">Demo Mode:</span> Use any email/password to proceed
-          </p>
-          <p className="text-xs text-gray-600">
-            This is a demo application for testing purposes.
           </p>
         </div>
       </div>
