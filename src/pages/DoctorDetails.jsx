@@ -1,6 +1,7 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getDoctorById, timeSlots } from '../utils/dummyData';
+import { timeSlots } from '../utils/dummyData';
 import Button from '../components/Button';
 import { AppContext } from '../context/AppContext';
 
@@ -9,15 +10,49 @@ const DoctorDetails = () => {
   const navigate = useNavigate();
   const { user, selectDoctor, updateAppointmentDetails } = useContext(AppContext);
 
-  const doctor = getDoctorById(id);
+  const [doctor, setDoctor] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  if (!doctor) {
+  useEffect(() => {
+    const fetchDoctor = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5001/api/doctors/${id}`);
+        const fetchedDoctor = response.data.doctor;
+        setDoctor({ ...fetchedDoctor, id: fetchedDoctor._id });
+      } catch (err) {
+        if (err.response && err.response.status === 404) {
+          setError('Doctor not found.');
+        } else {
+          setError('Failed to load doctor details.');
+          console.error('Doctor fetch error:', err);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctor();
+  }, [id]);
+
+  if (loading) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
-        <div className="text-center">
+        <div className="text-center bg-white rounded-xl shadow-md p-12">
+          <p className="text-xl font-semibold text-gray-800">Loading doctor details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !doctor) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
+        <div className="text-center bg-white rounded-xl shadow-md p-12">
           <h1 className="text-3xl font-bold text-gray-900 mb-4">Doctor not found</h1>
+          <p className="text-gray-600 mb-6">{error || 'The requested doctor could not be found.'}</p>
           <Button onClick={() => navigate('/doctors')}>Back to Doctors</Button>
         </div>
       </div>
@@ -48,7 +83,13 @@ const DoctorDetails = () => {
       timeSlot: selectedTime,
     });
 
-    navigate(`/appointment/${doctor.id}`);
+    navigate('/appointment', {
+      state: {
+        doctor,
+        date: selectedDate,
+        time: selectedTime,
+      },
+    });
   };
 
   return (

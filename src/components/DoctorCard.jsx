@@ -15,16 +15,17 @@ import Button from './Button';
  */
 const DoctorCard = ({ doctor, onBookClick }) => {
   const navigate = useNavigate();
+  const doctorId = doctor.id || doctor._id;
 
   const handleViewProfile = () => {
-    navigate(`/doctors/${doctor.id}`);
+    navigate(`/doctors/${doctorId}`);
   };
 
   const handleBookClick = () => {
     if (onBookClick) {
       onBookClick(doctor);
     } else {
-      navigate(`/doctors/${doctor.id}`);
+      navigate(`/doctors/${doctorId}`);
     }
   };
 

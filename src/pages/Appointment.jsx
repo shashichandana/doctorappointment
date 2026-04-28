@@ -1,15 +1,14 @@
 import React, { useState, useContext } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { getDoctorById } from '../utils/dummyData';
+import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import { AppContext } from '../context/AppContext';
 
 const Appointment = () => {
-  const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
-  const { user, appointmentDetails, resetAppointmentDetails } = useContext(AppContext);
+  const { user, resetAppointmentDetails } = useContext(AppContext);
 
-  const doctor = getDoctorById(id);
+  const { doctor, date, time } = location.state || {};
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     patientName: user?.name || '',
@@ -20,7 +19,7 @@ const Appointment = () => {
   });
   const [errors, setErrors] = useState({});
 
-  if (!doctor || !appointmentDetails.date || !appointmentDetails.timeSlot) {
+  if (!doctor || !date || !time) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
         <div className="text-center">
@@ -85,8 +84,8 @@ const Appointment = () => {
       // Success! Show confirmation
       alert(
         `Appointment confirmed!\n\nDoctor: ${doctor.name}\nDate: ${new Date(
-          appointmentDetails.date
-        ).toLocaleDateString()}\nTime: ${appointmentDetails.timeSlot}\n\nConfirmation email sent to ${formData.email}`
+          date
+        ).toLocaleDateString()}\nTime: ${time}\n\nConfirmation email sent to ${formData.email}`
       );
 
       resetAppointmentDetails();
@@ -132,7 +131,7 @@ const Appointment = () => {
               <div>
                 <p className="text-gray-600">Date</p>
                 <p className="font-semibold text-gray-900">
-                  {new Date(appointmentDetails.date).toLocaleDateString('en-US', {
+                  {new Date(date).toLocaleDateString('en-US', {
                     weekday: 'long',
                     year: 'numeric',
                     month: 'long',
@@ -143,7 +142,7 @@ const Appointment = () => {
 
               <div>
                 <p className="text-gray-600">Time</p>
-                <p className="font-semibold text-gray-900">{appointmentDetails.timeSlot}</p>
+                <p className="font-semibold text-gray-900">{time}</p>
               </div>
 
               <div className="pt-3 border-t">
