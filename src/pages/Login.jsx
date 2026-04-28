@@ -11,6 +11,7 @@ const Login = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [successMessage, setSuccessMessage] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -64,41 +65,59 @@ const Login = () => {
 
     setLoading(true);
     setErrors({});
+    setSuccessMessage('');
 
     try {
-      const endpoint = isSignup
-        ? 'http://localhost:5001/api/auth/register'
-        : 'http://localhost:5001/api/auth/login';
+      if (isSignup) {
+        // Handle Signup
+        const payload = {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        };
 
-      const payload = isSignup
-        ? {
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-          }
-        : {
-            email: formData.email,
-            password: formData.password,
-          };
+        await axios.post('http://localhost:5001/api/auth/register', payload);
 
-      const response = await axios.post(endpoint, payload);
+        // Show success message
+        setSuccessMessage('Account created successfully! Please sign in.');
+        
+        // Clear form and switch to login mode
+        setTimeout(() => {
+          setIsSignup(false);
+          setFormData({
+            name: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
+          });
+          setSuccessMessage('');
+        }, 2000);
+      } else {
+        // Handle Login
+        const payload = {
+          email: formData.email,
+          password: formData.password,
+        };
 
-      // Store JWT token in localStorage
-      if (response.data.token) {
-        localStorage.setItem('authToken', response.data.token);
+        const response = await axios.post('http://localhost:5001/api/auth/login', payload);
+
+        // Store JWT token in localStorage
+        if (response.data.token) {
+          localStorage.setItem('authToken', response.data.token);
+        }
+
+        // Call login from context
+        const userData = {
+          name: response.data.user?.name || formData.email.split('@')[0],
+          email: response.data.user?.email || formData.email,
+        };
+
+        login(userData);
+        navigate('/');
       }
-
-      // Call login from context
-      const userData = {
-        name: response.data.user?.name || formData.name || formData.email.split('@')[0],
-        email: response.data.user?.email || formData.email,
-      };
-
-      login(userData);
-      navigate('/');
     } catch (error) {
       const errorMessage =
-        error.response?.data?.message || 'An error occurred. Please try again.';
+        error.response?.data?.message || 'Something went wrong. Please try again.';
       setErrors({ submit: errorMessage });
     } finally {
       setLoading(false);
@@ -114,6 +133,7 @@ const Login = () => {
       confirmPassword: '',
     });
     setErrors({});
+    setSuccessMessage('');
   };
 
   return (
@@ -131,7 +151,7 @@ const Login = () => {
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isSignup ? 'Create Account' : 'Welcome Back'}
+              {isSignup ? 'Create Your Account' : 'Welcome Back'}
             </h1>
             <p className="text-gray-600">
               {isSignup
@@ -139,6 +159,20 @@ const Login = () => {
                 : 'Sign in to your PulsePoint account'}
             </p>
           </div>
+
+          {/* Success Message */}
+          {successMessage && (
+            <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-700 text-sm font-semibold">{successMessage}</p>
+            </div>
+          )}
+
+          {/* Error Message */}
+          {errors.submit && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-sm font-semibold">{errors.submit}</p>
+            </div>
+          )}
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -253,11 +287,21 @@ const Login = () => {
 
             {/* Submit Button */}
             <button
-  type="submit"
-  className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6"
->
-  {loading ? "Processing..." : isSignup ? "Create Account" : "Sign In"}
-</button>
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg mt-6 font-semibold hover:bg-blue-700 disabled:bg-blue-400 transition"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center space-x-2">
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                  <span>Processing...</span>
+                </span>
+              ) : isSignup ? (
+                'Create Account'
+              ) : (
+                'Sign In'
+              )}
+            </button>
               
           </form>
 

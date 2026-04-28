@@ -1,21 +1,54 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import axios from 'axios';
 import DoctorCard from '../components/DoctorCard';
-import { doctors, specialties } from '../utils/dummyData';
 import { AppContext } from '../context/AppContext';
+
+const specialties = [
+  { id: 1, name: 'Cardiology', icon: '❤️' },
+  { id: 2, name: 'Neurology', icon: '🧠' },
+  { id: 3, name: 'Orthopedics', icon: '🦴' },
+  { id: 4, name: 'Pediatrics', icon: '👶' },
+  { id: 5, name: 'Dermatology', icon: '🧴' },
+  { id: 6, name: 'ENT', icon: '👂' },
+  { id: 7, name: 'General Practice', icon: '👨‍⚕️' },
+  { id: 8, name: 'Ophthalmology', icon: '👁️' },
+];
 
 const Doctors = () => {
   const [searchParams] = useSearchParams();
   const { selectDoctor } = useContext(AppContext);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedSpecialty, setSelectedSpecialty] = useState(
     searchParams.get('specialty') || 'All'
   );
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('name');
 
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/api/doctors');
+        const rawDoctors = response.data.doctors ?? response.data.data ?? [];
+        const normalizedDoctors = rawDoctors.map((doctor) => ({
+          ...doctor,
+          id: doctor._id || doctor.id,
+        }));
+        setDoctors(normalizedDoctors);
+      } catch (error) {
+        console.error('Failed to load doctors:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
+
   // Filter and sort doctors
   const filteredDoctors = useMemo(() => {
-    let result = doctors;
+    let result = [...doctors];
 
     // Filter by specialty
     if (selectedSpecialty !== 'All') {
@@ -45,7 +78,7 @@ const Doctors = () => {
     }
 
     return result;
-  }, [selectedSpecialty, searchTerm, sortBy]);
+  }, [doctors, selectedSpecialty, searchTerm, sortBy]);
 
   const handleDoctorBook = (doctor) => {
     selectDoctor(doctor);
@@ -141,7 +174,11 @@ const Doctors = () => {
           </div>
 
           {/* Doctor Grid */}
-          {filteredDoctors.length > 0 ? (
+          {loading ? (
+            <div className="bg-white rounded-xl shadow-md p-12 text-center">
+              <p className="text-xl font-semibold text-gray-800">Loading doctors...</p>
+            </div>
+          ) : filteredDoctors.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {filteredDoctors.map((doctor) => (
                 <DoctorCard
@@ -155,7 +192,7 @@ const Doctors = () => {
             <div className="bg-white rounded-xl shadow-md p-12 text-center">
               <div className="text-5xl mb-4">🔍</div>
               <h3 className="text-xl font-semibold text-gray-800 mb-2">
-                No doctors found
+                No doctors available
               </h3>
               <p className="text-gray-600">
                 Try adjusting your search or filter criteria
