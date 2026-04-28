@@ -1,4 +1,5 @@
 import React, { useState, useContext } from 'react';
+import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import { AppContext } from '../context/AppContext';
@@ -79,19 +80,38 @@ const Appointment = () => {
 
     setLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      // Success! Show confirmation
-      alert(
-        `Appointment confirmed!\n\nDoctor: ${doctor.name}\nDate: ${new Date(
-          date
-        ).toLocaleDateString()}\nTime: ${time}\n\nConfirmation email sent to ${formData.email}`
+    try {
+      const token = localStorage.getItem('authToken');
+      await axios.post(
+        'http://localhost:5001/api/appointments',
+        {
+          doctorId: doctor._id,
+          date,
+          timeSlot: time,
+          reason: formData.problemDescription,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
       );
 
+      alert('Appointment booked successfully');
       resetAppointmentDetails();
       navigate('/');
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.response?.data?.errors?.[0]?.msg ||
+        error.message ||
+        'Failed to book appointment';
+      console.error('Appointment booking error:', error);
+      alert(errorMessage);
+    } finally {
       setLoading(false);
-    }, 1500);
+    }
   };
 
   return (
