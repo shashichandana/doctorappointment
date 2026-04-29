@@ -20,14 +20,6 @@ const DoctorCard = ({ doctor, onBookClick }) => {
     navigate(`/doctors/${doctorId}`);
   };
 
-  const handleBookClick = () => {
-    if (onBookClick) {
-      onBookClick(doctor);
-    } else {
-      navigate(`/doctors/${doctorId}`);
-    }
-  };
-
   return (
     <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition duration-300 overflow-hidden border border-gray-100">
       {/* Doctor Image */}
@@ -74,7 +66,7 @@ const DoctorCard = ({ doctor, onBookClick }) => {
           </button>
           <Button
             size="sm"
-            onClick={handleBookClick}
+            onClick={() => navigate(`/doctors/${doctor._id}`)}
             className="flex-1 text-sm"
           >
             Book Now

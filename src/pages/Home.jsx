@@ -1,17 +1,45 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Button from '../components/Button';
 import SpecialtyCard from '../components/SpecialtyCard';
 import DoctorCard from '../components/DoctorCard';
-import { specialties, doctors } from '../utils/dummyData';
+import { specialties } from '../utils/dummyData';
 import { AppContext } from '../context/AppContext';
 
 const Home = () => {
   const navigate = useNavigate();
   const { selectDoctor } = useContext(AppContext);
+  const [doctors, setDoctors] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
   
-  // Get top 6 doctors
+  // Get top 6 doctors from fetched backend doctors
   const topDoctors = doctors.slice(0, 6);
+
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      try {
+        const response = await axios.get('http://localhost:5001/api/doctors');
+        console.log('API RESPONSE:', response.data);
+        const fetchedDoctors = response.data.data || [];
+
+        setDoctors(fetchedDoctors);
+      } catch (error) {
+        console.error('Error fetching doctors:', error);
+        setDoctors([]);
+      } finally {
+        setLoadingDoctors(false);
+      }
+    };
+
+    fetchDoctors();
+  }, []);
+
+  const specialtyCount = {};
+  doctors.forEach((doc) => {
+    if (!doc.specialty) return;
+    specialtyCount[doc.specialty] = (specialtyCount[doc.specialty] || 0) + 1;
+  });
 
   const handleBookAppointment = () => {
     navigate('/doctors');
@@ -112,7 +140,12 @@ const Home = () => {
                 key={specialty.id}
                 onClick={() => handleSpecialtyClick(specialty)}
               >
-                <SpecialtyCard specialty={specialty} />
+                <SpecialtyCard
+                  specialty={{
+                    ...specialty,
+                    doctorCount: specialtyCount[specialty.name] || 0,
+                  }}
+                />
               </div>
             ))}
           </div>
@@ -132,24 +165,36 @@ const Home = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {topDoctors.map((doctor) => (
-              <DoctorCard
-                key={doctor.id}
-                doctor={doctor}
-                onBookClick={handleDoctorBook}
-              />
-            ))}
+            {loadingDoctors ? (
+              <div className="col-span-full bg-white rounded-xl shadow-md p-12 text-center">
+                <p className="text-xl font-semibold text-gray-800">Loading doctors...</p>
+              </div>
+            ) : doctors.length === 0 ? (
+              <div className="col-span-full bg-white rounded-xl shadow-md p-12 text-center">
+                <p className="text-xl font-semibold text-gray-800">No doctors available</p>
+              </div>
+            ) : (
+              topDoctors.map((doctor) => (
+                <DoctorCard
+                  key={doctor.id}
+                  doctor={doctor}
+                  onBookClick={handleDoctorBook}
+                />
+              ))
+            )}
           </div>
 
-          <div className="flex justify-center mt-10">
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => navigate('/doctors')}
-            >
-              View All Doctors
-            </Button>
-          </div>
+          {!loadingDoctors && doctors.length > 0 && (
+            <div className="flex justify-center mt-10">
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => navigate('/doctors')}
+              >
+                View All Doctors
+              </Button>
+            </div>
+          )}
         </div>
       </section>
 

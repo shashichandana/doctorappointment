@@ -26,6 +26,7 @@ function App() {
             <Route path="/doctors/:id" element={<DoctorDetails />} />
             <Route path="/appointment" element={<Appointment />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Login initialMode="signup" />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>

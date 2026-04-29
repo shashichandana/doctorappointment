@@ -73,9 +73,7 @@ const Doctors = () => {
       result.sort((a, b) => b.fee - a.fee);
     } else if (sortBy === 'experience') {
       result.sort((a, b) => b.experience - a.experience);
-    } else if (sortBy === 'rating') {
-      result.sort((a, b) => b.rating - a.rating);
-    }
+    } 
 
     return result;
   }, [doctors, selectedSpecialty, searchTerm, sortBy]);
@@ -158,7 +156,7 @@ const Doctors = () => {
                 <option value="fee-low">Fee (Low to High)</option>
                 <option value="fee-high">Fee (High to Low)</option>
                 <option value="experience">Experience</option>
-                <option value="rating">Rating</option>
+                
               </select>
             </div>
           </div>

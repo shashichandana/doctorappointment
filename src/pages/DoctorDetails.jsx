@@ -92,6 +92,33 @@ const DoctorDetails = () => {
     });
   };
 
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const isToday = selectedDate === todayDateStr;
+
+  const parseSlotToDate = (slot) => {
+    const [timePart, modifier] = slot.split(' ');
+    const [hourStr, minuteStr] = timePart.split(':');
+    let hours = parseInt(hourStr, 10);
+    const minutes = parseInt(minuteStr, 10);
+
+    if (modifier === 'PM' && hours !== 12) {
+      hours += 12;
+    }
+    if (modifier === 'AM' && hours === 12) {
+      hours = 0;
+    }
+
+    const slotDate = new Date(`${selectedDate}T00:00:00`);
+    slotDate.setHours(hours, minutes, 0, 0);
+    return slotDate;
+  };
+
+  const isSlotDisabled = (slot) => {
+    if (!isToday) return false;
+    const slotDate = parseSlotToDate(slot);
+    return slotDate < new Date();
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
       {/* Back Button */}
@@ -148,16 +175,6 @@ const DoctorDetails = () => {
                   <span className="font-semibold text-gray-900">{doctor.reviews}</span>
                 </div>
               </div>
-
-              <div className="pt-4 border-t">
-                <p
-                  className={`text-sm font-semibold ${
-                    doctor.available ? 'text-green-600' : 'text-red-600'
-                  }`}
-                >
-                  {doctor.available ? '✓ Available' : '✗ Currently Busy'}
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -212,13 +229,18 @@ const DoctorDetails = () => {
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                   {timeSlots.map((time, index) => {
                     const isSelected = selectedTime === time;
+                    const disabled = isSlotDisabled(time);
 
                     return (
                       <button
                         key={index}
-                        onClick={() => setSelectedTime(time)}
+                        type="button"
+                        onClick={() => !disabled && setSelectedTime(time)}
+                        disabled={disabled}
                         className={`p-3 rounded-lg font-semibold transition duration-200 text-sm ${
-                          isSelected
+                          disabled
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : isSelected
                             ? 'bg-blue-600 text-white shadow-lg'
                             : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
                         }`}

@@ -64,18 +64,20 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {!user ? (
               <>
-                <Link
-                  to="/login"
+                <button
+                  type="button"
+                  onClick={() => navigate('/login')}
                   className="text-gray-700 hover:text-blue-600 font-medium transition duration-200"
                 >
                   Login
-                </Link>
-                <Link
-                  to="/login"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate('/register')}
                   className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-200 ease-in-out shadow-md hover:shadow-lg"
                 >
                   Sign Up
-                </Link>
+                </button>
               </>
             ) : (
               <div className="relative">
@@ -169,20 +171,26 @@ const Navbar = () => {
           <div className="border-t border-gray-200 px-2 py-3 space-y-2">
             {!user ? (
               <>
-                <Link
-                  to="/login"
-                  className="block text-center px-4 py-2 text-gray-700 hover:text-blue-600 font-medium"
-                  onClick={() => setMenuOpen(false)}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate('/login');
+                  }}
+                  className="block w-full text-center px-4 py-2 text-gray-700 hover:text-blue-600 font-medium"
                 >
                   Login
-                </Link>
-                <Link
-                  to="/login"
-                  className="block text-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
-                  onClick={() => setMenuOpen(false)}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate('/register');
+                  }}
+                  className="block w-full text-center px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition"
                 >
                   Sign Up
-                </Link>
+                </button>
               </>
             ) : (
               <>

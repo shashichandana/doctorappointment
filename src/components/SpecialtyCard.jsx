@@ -5,7 +5,6 @@ import React from 'react';
  * @param {Object} specialty - Specialty data
  * @param {string} specialty.name - Specialty name
  * @param {string} specialty.icon - Icon/emoji for specialty
- * @param {number} specialty.doctorCount - Number of doctors in this specialty
  */
 const SpecialtyCard = ({ specialty, onClick }) => {
   return (
@@ -22,11 +21,6 @@ const SpecialtyCard = ({ specialty, onClick }) => {
       <h3 className="text-lg font-bold text-gray-800 mb-2">
         {specialty.name}
       </h3>
-
-      {/* Doctor Count */}
-      <p className="text-sm text-gray-600">
-        {specialty.doctorCount || 0} doctors available
-      </p>
 
       {/* Hover Effect */}
       <div className="mt-4 text-blue-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition">

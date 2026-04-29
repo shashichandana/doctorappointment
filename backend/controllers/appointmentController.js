@@ -370,6 +370,20 @@ exports.createAppointment = async (req, res, next) => {
       });
     }
 
+    // Prevent duplicate bookings for same doctor/date/time
+    const existing = await Appointment.findOne({
+      doctor: doctorId,
+      date,
+      time,
+    });
+
+    if (existing) {
+      return res.status(400).json({
+        success: false,
+        message: 'This slot is already booked',
+      });
+    }
+
     // 5. Create new appointment
     const appointment = new Appointment({
       user: userId,

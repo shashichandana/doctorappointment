@@ -1,14 +1,14 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 import { AppContext } from '../context/AppContext';
 
-const Login = () => {
+const Login = ({ initialMode = 'login' }) => {
   const navigate = useNavigate();
   const { login } = useContext(AppContext);
   
-  const [isSignup, setIsSignup] = useState(false);
+  const [isSignup, setIsSignup] = useState(initialMode === 'signup');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const [successMessage, setSuccessMessage] = useState('');
@@ -18,6 +18,10 @@ const Login = () => {
     password: '',
     confirmPassword: '',
   });
+
+  useEffect(() => {
+    setIsSignup(initialMode === 'signup');
+  }, [initialMode]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -122,18 +126,6 @@ const Login = () => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const toggleMode = () => {
-    setIsSignup(!isSignup);
-    setFormData({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
-    setErrors({});
-    setSuccessMessage('');
   };
 
   return (
@@ -325,16 +317,29 @@ const Login = () => {
 
           {/* Toggle Link */}
           <div className="mt-8 text-center">
-            <p className="text-gray-600">
-              {isSignup ? 'Already have an account?' : "Don't have an account?"}{' '}
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="text-blue-600 hover:text-blue-800 font-bold transition"
-              >
-                {isSignup ? 'Sign In' : 'Sign Up'}
-              </button>
-            </p>
+            {!isSignup ? (
+              <p className="text-gray-600">
+                Don't have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsSignup(true)}
+                  className="text-blue-600 hover:text-blue-800 font-bold transition"
+                >
+                  Sign Up
+                </button>
+              </p>
+            ) : (
+              <p className="text-gray-600">
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  onClick={() => setIsSignup(false)}
+                  className="text-blue-600 hover:text-blue-800 font-bold transition"
+                >
+                  Sign In
+                </button>
+              </p>
+            )}
           </div>
 
           {/* Terms */}
