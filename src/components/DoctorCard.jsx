@@ -11,7 +11,6 @@ import Button from './Button';
  * @param {number} doctor.experience - Years of experience
  * @param {number} doctor.fee - Consultation fee
  * @param {string} doctor.image - Doctor image URL
- * @param {boolean} doctor.available - Availability status
  */
 const DoctorCard = ({ doctor, onBookClick }) => {
   const navigate = useNavigate();
@@ -44,17 +43,6 @@ const DoctorCard = ({ doctor, onBookClick }) => {
             {doctor.name?.charAt(0).toUpperCase()}
           </div>
         )}
-
-        {/* Availability Badge */}
-        <div
-          className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold text-white shadow-md ${
-            doctor.available
-              ? 'bg-green-500'
-              : 'bg-red-500'
-          }`}
-        >
-          {doctor.available ? 'Available' : 'Busy'}
-        </div>
       </div>
 
       {/* Doctor Info */}
