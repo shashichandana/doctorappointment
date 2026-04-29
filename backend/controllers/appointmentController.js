@@ -334,3 +334,67 @@ exports.getAppointmentStats = async (req, res, next) => {
     next(error);
   }
 };
+
+// @route   POST /api/appointments
+// @desc    Create a new appointment
+// @access  Private
+exports.createAppointment = async (req, res, next) => {
+  try {
+    // 1. Extract fields from request body
+    const { doctorId, date, time } = req.body;
+
+    // 2. Get user from auth middleware
+    const userId = req.user?.id || req.user?._id;
+
+    // 3. Validate fields
+    if (!doctorId || !date || !time) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields: doctorId, date, and time',
+      });
+    }
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not authenticated',
+      });
+    }
+
+    // 4. Check if doctor exists
+    const doctor = await Doctor.findById(doctorId);
+    if (!doctor) {
+      return res.status(404).json({
+        success: false,
+        message: 'Doctor not found',
+      });
+    }
+
+    // 5. Create new appointment
+    const appointment = new Appointment({
+      user: userId,
+      doctor: doctorId,
+      date,
+      time,
+      status: 'booked',
+    });
+
+    // 6. Save to database
+    await appointment.save();
+
+    // Populate references for response
+    await appointment.populate([
+      { path: 'user', select: 'name email phone' },
+      { path: 'doctor', select: 'name specialty' },
+    ]);
+
+    // 7. Return success response
+    return res.status(201).json({
+      success: true,
+      message: 'Appointment booked successfully',
+      appointment,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

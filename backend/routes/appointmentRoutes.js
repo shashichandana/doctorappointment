@@ -7,6 +7,15 @@ const roleMiddleware = require('../middleware/roleMiddleware');
 const router = express.Router();
 
 // @route   POST /api/appointments
+// @desc    Create a new appointment
+// @access  Private
+router.post(
+  '/',
+  authMiddleware,
+  appointmentController.createAppointment
+);
+
+// @route   POST /api/appointments
 // @desc    Book a new appointment
 // @access  Private/Patient
 router.post(

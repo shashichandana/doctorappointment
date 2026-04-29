@@ -3,14 +3,16 @@ import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import { AppContext } from '../context/AppContext';
+import { timeSlots } from '../utils/dummyData';
 
 const Appointment = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, resetAppointmentDetails } = useContext(AppContext);
 
-  const { doctor, date, time } = location.state || {};
+  const { doctor, date, time: initialTime } = location.state || {};
   const [loading, setLoading] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(initialTime || '');
   const [formData, setFormData] = useState({
     patientName: user?.name || '',
     email: user?.email || '',
@@ -20,7 +22,7 @@ const Appointment = () => {
   });
   const [errors, setErrors] = useState({});
 
-  if (!doctor || !date || !time) {
+  if (!doctor || !date) {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
         <div className="text-center">
@@ -36,6 +38,10 @@ const Appointment = () => {
 
   const validateForm = () => {
     const newErrors = {};
+
+    if (!selectedTime) {
+      newErrors.selectedTime = 'Time slot is required';
+    }
 
     if (!formData.patientName.trim()) {
       newErrors.patientName = 'Name is required';
@@ -80,6 +86,9 @@ const Appointment = () => {
 
     setLoading(true);
 
+    // Log selectedTime to confirm it has value
+    console.log('Selected time:', selectedTime);
+
     try {
       const token = localStorage.getItem('authToken');
       await axios.post(
@@ -87,8 +96,7 @@ const Appointment = () => {
         {
           doctorId: doctor._id,
           date,
-          timeSlot: time,
-          reason: formData.problemDescription,
+          time: selectedTime,
         },
         {
           headers: {
@@ -162,7 +170,7 @@ const Appointment = () => {
 
               <div>
                 <p className="text-gray-600">Time</p>
-                <p className="font-semibold text-gray-900">{time}</p>
+                <p className="font-semibold text-gray-900">{selectedTime || 'Not selected'}</p>
               </div>
 
               <div className="pt-3 border-t">
@@ -274,6 +282,32 @@ const Appointment = () => {
               </div>
             </div>
 
+            {/* Time Slot Selection */}
+            <div>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">
+                Select Time Slot *
+              </label>
+              <div className="grid grid-cols-3 gap-3">
+                {timeSlots.map((slot) => (
+                  <button
+                    key={slot}
+                    type="button"
+                    onClick={() => setSelectedTime(slot)}
+                    className={`px-4 py-3 border rounded-lg text-sm font-medium transition ${
+                      selectedTime === slot
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                    }`}
+                  >
+                    {slot}
+                  </button>
+                ))}
+              </div>
+              {errors.selectedTime && (
+                <p className="text-red-500 text-sm mt-2">{errors.selectedTime}</p>
+              )}
+            </div>
+
             {/* Problem Description */}
             <div>
               <label className="block text-sm font-semibold text-gray-800 mb-2">
@@ -335,7 +369,7 @@ const Appointment = () => {
                 className="w-full text-base"
                 disabled={loading}
               >
-                Back to Date Selection
+                Back to Doctor Details
               </Button>
             </div>
           </form>
