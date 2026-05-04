@@ -177,10 +177,6 @@ const Appointment = () => {
                 <p className="text-gray-600">Consultation Fee</p>
                 <p className="text-2xl font-bold text-blue-600">₹{doctor.fee}</p>
               </div>
-
-              <div className="pt-3 bg-blue-50 rounded-lg p-3 text-xs text-gray-700">
-                <p>✓ Confirmation will be sent to your registered email</p>
-              </div>
             </div>
           </div>
         </div>

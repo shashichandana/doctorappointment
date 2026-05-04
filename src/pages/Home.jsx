@@ -1,21 +1,14 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Button from '../components/Button';
 import SpecialtyCard from '../components/SpecialtyCard';
-import DoctorCard from '../components/DoctorCard';
 import { specialties } from '../utils/dummyData';
-import { AppContext } from '../context/AppContext';
 
 const Home = () => {
   const navigate = useNavigate();
-  const { selectDoctor } = useContext(AppContext);
   const [doctors, setDoctors] = useState([]);
-  const [loadingDoctors, setLoadingDoctors] = useState(true);
   
-  // Get top 6 doctors from fetched backend doctors
-  const topDoctors = doctors.slice(0, 6);
-
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
@@ -27,8 +20,6 @@ const Home = () => {
       } catch (error) {
         console.error('Error fetching doctors:', error);
         setDoctors([]);
-      } finally {
-        setLoadingDoctors(false);
       }
     };
 
@@ -47,11 +38,6 @@ const Home = () => {
 
   const handleSpecialtyClick = (specialty) => {
     navigate(`/doctors?specialty=${specialty.name}`);
-  };
-
-  const handleDoctorBook = (doctor) => {
-    selectDoctor(doctor);
-    navigate(`/doctors/${doctor.id}`);
   };
 
   return (
@@ -149,52 +135,6 @@ const Home = () => {
               </div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Top Doctors Section */}
-      <section id="doctors" className="py-16 md:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Meet Our Top Doctors
-            </h2>
-            <p className="text-lg text-gray-600 mb-8">
-              Experienced healthcare professionals dedicated to your wellness
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {loadingDoctors ? (
-              <div className="col-span-full bg-white rounded-xl shadow-md p-12 text-center">
-                <p className="text-xl font-semibold text-gray-800">Loading doctors...</p>
-              </div>
-            ) : doctors.length === 0 ? (
-              <div className="col-span-full bg-white rounded-xl shadow-md p-12 text-center">
-                <p className="text-xl font-semibold text-gray-800">No doctors available</p>
-              </div>
-            ) : (
-              topDoctors.map((doctor) => (
-                <DoctorCard
-                  key={doctor.id}
-                  doctor={doctor}
-                  onBookClick={handleDoctorBook}
-                />
-              ))
-            )}
-          </div>
-
-          {!loadingDoctors && doctors.length > 0 && (
-            <div className="flex justify-center mt-10">
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => navigate('/doctors')}
-              >
-                View All Doctors
-              </Button>
-            </div>
-          )}
         </div>
       </section>
 
