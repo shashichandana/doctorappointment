@@ -127,6 +127,38 @@ exports.getUserAppointments = async (req, res, next) => {
   }
 };
 
+// @route   GET /api/appointments/doctor/:doctorId
+// @desc    Get booked slots for a doctor on a specific date
+// @access  Public
+exports.getDoctorBookedSlots = async (req, res, next) => {
+  try {
+    const { doctorId } = req.params;
+    const { date } = req.query;
+
+    if (!date) {
+      return res.status(400).json({
+        success: false,
+        message: 'Date query parameter is required',
+      });
+    }
+
+    const appointments = await Appointment.find({
+      doctor: doctorId,
+      date,
+      status: { $in: ['pending', 'booked'] },
+    });
+
+    const bookedSlots = appointments.map(app => app.time);
+
+    return res.status(200).json({
+      success: true,
+      bookedSlots,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @route   GET /api/appointments/doctor
 // @desc    Get doctor's appointments (dashboard)
 // @access  Private/Doctor
@@ -249,10 +281,11 @@ exports.cancelAppointment = async (req, res, next) => {
       });
     }
 
-    // Check authorization (patient or doctor or admin)
+    // Check authorization (patient only)
+    const appointmentUser = appointment.user || appointment.userId;
     if (
       req.user.role === 'patient' &&
-      appointment.userId.toString() !== req.userId
+      (!appointmentUser || appointmentUser.toString() !== req.userId)
     ) {
       return res.status(403).json({
         success: false,
@@ -285,6 +318,39 @@ exports.cancelAppointment = async (req, res, next) => {
       success: true,
       message: 'Appointment cancelled successfully',
       appointment,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @route   DELETE /api/appointments/:id
+// @desc    Cancel an appointment for logged-in user
+// @access  Private
+exports.deleteAppointment = async (req, res, next) => {
+  try {
+    const appointment = await Appointment.findById(req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({
+        success: false,
+        message: 'Appointment not found',
+      });
+    }
+
+    const appointmentUser = appointment.user || appointment.userId;
+    if (!appointmentUser || appointmentUser.toString() !== req.userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Not authorized to cancel this appointment',
+      });
+    }
+
+    await Appointment.findByIdAndDelete(req.params.id);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Appointment cancelled successfully',
     });
   } catch (error) {
     next(error);

@@ -1,9 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Button from '../components/Button';
 import { AppContext } from '../context/AppContext';
 import { timeSlots } from '../utils/dummyData';
+
+const API_BASE_URL = 'http://localhost:5001';
 
 const Appointment = () => {
   const location = useLocation();
@@ -13,6 +15,7 @@ const Appointment = () => {
   const { doctor, date, time: initialTime } = location.state || {};
   const [loading, setLoading] = useState(false);
   const [selectedTime, setSelectedTime] = useState(initialTime || '');
+  const [bookedSlots, setBookedSlots] = useState([]);
   const [formData, setFormData] = useState({
     patientName: user?.name || '',
     email: user?.email || '',
@@ -22,19 +25,28 @@ const Appointment = () => {
   });
   const [errors, setErrors] = useState({});
 
-  if (!doctor || !date) {
-    return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Invalid Request</h1>
-          <p className="text-gray-600 mb-6">
-            Please start from booking a doctor appointment
-          </p>
-          <Button onClick={() => navigate('/doctors')}>Go to Doctors</Button>
-        </div>
-      </div>
-    );
-  }
+  const handleTimeSlotClick = (slot) => {
+    if (bookedSlots.includes(slot)) {
+      alert('This time slot is already booked. Please choose another slot.');
+      return;
+    }
+    setSelectedTime(slot);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: '',
+      }));
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -52,30 +64,47 @@ const Appointment = () => {
     if (!formData.age || formData.age < 1 || formData.age > 120) {
       newErrors.age = 'Valid age is required';
     }
-    if (!formData.phone.trim() || !/^\d{10}$/.test(formData.phone.replace(/\D/g, ''))) {
-      newErrors.phone = '10-digit phone number is required';
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required';
     }
     if (!formData.problemDescription.trim()) {
-      newErrors.problemDescription = 'Please describe your health concern';
+      newErrors.problemDescription = 'Problem description is required';
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    if (errors[name]) {
-      setErrors((prev) => ({
-        ...prev,
-        [name]: '',
-      }));
+  useEffect(() => {
+    const fetchBookedSlots = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/appointments/doctor/${doctor._id}?date=${date}`);
+        if (response.data.success) {
+          setBookedSlots(response.data.bookedSlots);
+        }
+      } catch (error) {
+        console.error('Error fetching booked slots:', error);
+      }
+    };
+
+    if (doctor && date) {
+      fetchBookedSlots();
     }
-  };
+  }, [doctor, date]);
+
+  if (!doctor || !date) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Invalid Request</h1>
+          <p className="text-gray-600 mb-6">
+            Please start from booking a doctor appointment
+          </p>
+          <Button onClick={() => navigate('/doctors')}>Go to Doctors</Button>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -284,20 +313,27 @@ const Appointment = () => {
                 Select Time Slot *
               </label>
               <div className="grid grid-cols-3 gap-3">
-                {timeSlots.map((slot) => (
-                  <button
-                    key={slot}
-                    type="button"
-                    onClick={() => setSelectedTime(slot)}
-                    className={`px-4 py-3 border rounded-lg text-sm font-medium transition ${
-                      selectedTime === slot
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
-                    }`}
-                  >
-                    {slot}
-                  </button>
-                ))}
+                {timeSlots.map((slot) => {
+                  const isBooked = bookedSlots.includes(slot);
+                  const isSelected = selectedTime === slot;
+                  return (
+                    <button
+                      key={slot}
+                      type="button"
+                      onClick={() => handleTimeSlotClick(slot)}
+                      disabled={isBooked}
+                      className={`px-4 py-3 border rounded-lg text-sm font-medium transition ${
+                        isBooked
+                          ? 'bg-gray-200 text-gray-500 border-gray-300 cursor-not-allowed'
+                          : isSelected
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-blue-400'
+                      }`}
+                    >
+                      {slot}
+                    </button>
+                  );
+                })}
               </div>
               {errors.selectedTime && (
                 <p className="text-red-500 text-sm mt-2">{errors.selectedTime}</p>

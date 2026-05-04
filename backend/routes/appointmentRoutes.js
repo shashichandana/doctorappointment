@@ -42,6 +42,14 @@ router.get(
   appointmentController.getUserAppointments
 );
 
+// @route   GET /api/appointments/doctor/:doctorId
+// @desc    Get booked slots for a doctor on a specific date
+// @access  Public (or Private if needed)
+router.get(
+  '/doctor/:doctorId',
+  appointmentController.getDoctorBookedSlots
+);
+
 // @route   GET /api/appointments/doctor
 // @desc    Get doctor's appointments (dashboard)
 // @access  Private/Doctor
@@ -95,6 +103,15 @@ router.get(
   '/stats/dashboard',
   authMiddleware,
   appointmentController.getAppointmentStats
+);
+
+// @route   DELETE /api/appointments/:id
+// @desc    Cancel an appointment for logged-in user
+// @access  Private
+router.delete(
+  '/:id',
+  authMiddleware,
+  appointmentController.deleteAppointment
 );
 
 module.exports = router;
