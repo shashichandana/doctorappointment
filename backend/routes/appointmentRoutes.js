@@ -39,7 +39,6 @@ router.post(
 router.get(
   '/user',
   authMiddleware,
-  roleMiddleware('patient'),
   appointmentController.getUserAppointments
 );
 

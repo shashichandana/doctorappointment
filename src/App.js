@@ -10,6 +10,7 @@ import Home from "./pages/Home";
 import Doctors from "./pages/Doctors";
 import DoctorDetails from "./pages/DoctorDetails";
 import Appointment from "./pages/Appointment";
+import MyAppointments from "./pages/MyAppointments";
 import Login from "./pages/Login";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -25,6 +26,7 @@ function App() {
             <Route path="/doctors" element={<Doctors />} />
             <Route path="/doctors/:id" element={<DoctorDetails />} />
             <Route path="/appointment" element={<Appointment />} />
+            <Route path="/appointments" element={<MyAppointments />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Login initialMode="signup" />} />
             <Route path="/about" element={<About />} />

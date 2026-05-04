@@ -37,9 +37,9 @@ exports.bookAppointment = async (req, res, next) => {
 
     // Check if appointment slot already exists
     const existingAppointment = await Appointment.findOne({
-      doctorId,
-      date: new Date(date),
-      timeSlot,
+      doctor: doctorId,
+      date,
+      time: timeSlot,
       status: { $in: ['pending', 'booked'] },
     });
 
@@ -52,9 +52,9 @@ exports.bookAppointment = async (req, res, next) => {
 
     // Check for double booking (same patient, same time)
     const patientBooking = await Appointment.findOne({
-      userId: req.userId,
-      date: new Date(date),
-      timeSlot,
+      user: req.user.id,
+      date,
+      time: timeSlot,
       status: { $in: ['pending', 'booked'] },
     });
 
@@ -67,18 +67,18 @@ exports.bookAppointment = async (req, res, next) => {
 
     // Create appointment
     const appointment = await Appointment.create({
-      userId: req.userId,
-      doctorId,
-      date: new Date(date),
-      timeSlot,
+      user: req.user.id,
+      doctor: doctorId,
+      date,
+      time: timeSlot,
       reason,
       status: 'booked',
     });
 
     // Populate and return
     const populatedAppointment = await appointment.populate([
-      { path: 'userId', select: 'name email phone' },
-      { path: 'doctorId', select: 'name specialty fee' },
+      { path: 'user', select: 'name email phone' },
+      { path: 'doctor', select: 'name specialty fee' },
     ]);
 
     return res.status(201).json({
@@ -99,15 +99,15 @@ exports.getUserAppointments = async (req, res, next) => {
     const { status, page = 1, limit = 10 } = req.query;
     const skip = (page - 1) * limit;
 
-    const filter = { userId: req.userId };
+    const filter = { user: req.user.id };
 
     if (status) {
       filter.status = status;
     }
 
     const appointments = await Appointment.find(filter)
-      .populate('doctorId', 'name specialty fee image')
-      .populate('userId', 'name email phone')
+      .populate('doctor', 'name specialty fee image')
+      .populate('user', 'name email phone')
       .sort('-createdAt')
       .skip(skip)
       .limit(parseInt(limit));
